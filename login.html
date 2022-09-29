@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大事件登录</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="./assets/lib/layui/layui.all.js"></script>
+    <link rel="stylesheet" href="./assets/lib/layui/css/layui.css">
+    <link rel="stylesheet" href="./assets/css/login.css">
+</head>
+<body>
+    <script>
+        var form = layui.form
+            form.verify({
+                //自定义pwd校验规则
+                pwd:[/^[\S]{6,12}$/,'密码必须6到12位，且不能出现空格'],
+                //校验两次密码是否一致的规则
+                repwd:function(value){
+                    var pwd = $('.reg-box [name=password]').val()
+                    if(pwd!==value){
+                        return '两次密码不一致'
+                    }
+                }
+            })
+    </script>
+    <div class="layui-main">
+        <img src="./assets/images/logo.png" alt="">
+    </div>
+    <div class="loginAndRegBox">
+        <div class="title-box"></div>
+        <!-- 登录的div -->
+        <div class="login-box">
+            <!-- 登录的表单 -->
+            <form class="layui-form" action="" id="form_login">
+                <!-- 用户名 -->
+                <div class="layui-form-item">
+                    <i class="layui-icon layui-icon-username"></i>
+                    <input type="text" name="username" required lay-verify ="required"
+                    placeholder="请输入用户名" autocomplete="off" class="layui-input">
+                </div>
+                <!-- 密码 -->
+                <div class="layui-from-item">
+                    <i class="layui-icon layui-icon-password"></i>
+                    <input type="password" name="password" required lay-verify="pwd" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                </div>
+                <!-- 登录按钮 -->
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid layui-btn-normal" lay-submit>
+                        登录</button>
+                </div>
+                <div class="layui-from-item links">
+                    <a href="javascript:;" id="link_reg">去注册账号</a>
+                </div>
+            </form>
+        </div>
+        <!-- 注册的div -->
+        <div class="reg-box">
+            <!-- 注册的表单 -->
+            <form class="layui-form" id="form_reg" action="">
+                <!-- 用户名 -->
+                <div class="layui-form-item">
+                    <i class="layui-icon layui-icon-username"></i>
+                    <input type="text" name="username" required lay-verify ="required"
+                    placeholder="请输入用户名" autocomplete="off" class="layui-input">
+                </div>
+                <!-- 密码 -->
+                <div class="layui-from-item">
+                    <i class="layui-icon layui-icon-password"></i>
+                    <input type="password" name="password" required lay-verify="repwd|pwd" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                </div>
+                <!-- 密码确认框 -->
+                <div class="layui-form-item"> 
+                    <i class="layui-icon layui-icon-password"></i> 
+                    <input type="password" name="repassword" required lay-verify="repwd|pwd" placeholder="再次确认密码" autocomplete="off" class="layui-input" /> </div>
+                <!-- 注册按钮 -->
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid layui-btn-normal" lay-submit>
+                        注册</button>
+                </div>
+                <div class="layui-from-item links">
+                    <a href="javascript:;" id="link_login">去登录</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function(){
+            $('#link_reg').on('click',function(){
+                $('.login-box').hide()
+                $('.reg-box').show()
+            })
+            $('#link_login').on('click',function(){
+                $('.reg-box').hide()
+                $('.login-box').show()
+            })
+
+            // 自定义校验规则
+            var form = layui.form
+            form.verify({
+                //自定义pwd校验规则
+                pwd:[/^[\S]{6,12}$/,'密码必须6到12位，且不能出现空格'],
+                //校验两次密码是否一致的规则
+                repwd:function(value){
+                    var pwd = $('.reg-box [name=password]').val()
+                    if(pwd!==value){
+                        return '两次密码不一致'
+                    }
+                }
+            })
+
+            //监听注册表单提交事件
+            $('#form_reg').on('submit',function(e){
+                //阻止默认提交行为
+                e.preventDefault()
+                //发起ajax的post请求
+                var data = {
+                    username :$('#form_reg [name=username]').val(),
+                    password :$('#form_reg [name=password]').val()
+                }
+                $.post('http://www.liulongbin.top:3007/api/reguser',data,function(res){
+                    if(res.status !==0){
+                        return layer.msg(res.message)
+                    }
+                    layer.msg('注册成功请登录')
+                    //
+                    // $('#link_login').click()
+                })
+            })
+
+
+            //监听登录表单提交的事件
+            $('#form_login').submit(function(e){
+                e.preventDefault()
+                $.ajax({
+                    url:'http://www.liulongbin.top:3007/api/login',
+                    method:'POST',
+                    data:$(this).serialize(),
+                    success:function(res){
+                        if(res.status!==0){
+                            return layer.msg('登录失败！')
+                        }
+                        layer.msg('登录成功！')
+                        localStorage.setItem('token',res.token)
+                        location.href = './index.html'
+                    }
+                })
+            })
+        })
+    </script>
+</body>
+</html>
