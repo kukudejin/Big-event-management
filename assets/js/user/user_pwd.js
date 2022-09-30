@@ -28,6 +28,7 @@ $(function(){
                     return layui.layer.msg(res.message)
                 }
                 return layui.layer.msg(res.message)
+                $('.layui-form')[0].reset()
             }
         })
     })
